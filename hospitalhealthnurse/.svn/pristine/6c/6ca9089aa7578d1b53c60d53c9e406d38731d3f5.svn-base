@@ -1,0 +1,316 @@
+<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ include file="/WEB-INF/views/include/taglib.jsp"%>
+<form:form id="nutritionForm" action="${ctx}/healtharchives/intervene/saveNutrition" method="post">
+<input type="hidden" id="id" name="id" value="${nurser.id}">
+<input type="hidden" id="interveneId" name="interveneId" value="${intervene.id}">
+<div class="docDiv">
+	<div class="doctorDiv">	
+	<label>主管营养师</label> 		
+	<tags:treeselect notAllowSelectParent="true" url="/healtharchives/healthArchives/treeData" id="dietitianId" name="dietitianId"
+	value="${nutrition.dietitianId}" labelName="dietitianNm"  labelValue="${nutrition.dietitianNm}" title="人员" cssClass="required"></tags:treeselect>	
+	</div>
+	<div class="doctorDiv">
+	<label>营养支持治疗时间</label>
+	<input id="treatStartTime" name="treatStartTime" type="text" maxlength="20" class="Wdate input-medium required" 
+		value="<fmt:formatDate value="${nutrition.treatStartTime}" pattern="yyyy-MM-dd HH:mm"/>" readonly="readonly"
+		onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm',isShowClear:true});"/>~
+	<input id="treatEndTime" name="treatEndTime" type="text" maxlength="20" class="Wdate input-medium required" 
+		value="<fmt:formatDate value="${nutrition.treatEndTime}" pattern="yyyy-MM-dd HH:mm"/>" readonly="readonly"
+		onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm',isShowClear:true,minDate:$('#treatStartTime').val()});"/>
+	</div>
+</div>
+<div class="docDiv">
+	<div class="doctorDiv">	
+		<label class="doctorLabel">营养评估结果</label>
+		<textarea id="assessResult" name="assessResult" maxlength="100" rows="2" cols="5" style="min-width: 550px;">${nutrition.assessResult}</textarea>
+	</div>
+</div>
+<div class="docDiv">
+	<div class="doctorDiv">	
+		<label class="doctorLabel">临床诊断</label>
+		<textarea id="clinicalDiagnosis" name="clinicalDiagnosis" rows="2" cols="5" style="min-width: 550px;">${nutrition.clinicalDiagnosis}</textarea>
+	</div>
+</div>
+<div class="lineDiv"><input type="button" value="营养计划"></div>
+<table class="interveneTable">
+	<tr>
+		<th colspan="2" width="20%"></th>
+		<th colspan="2" width="25%">近期摄入量</th>
+		<th width="15%">产生能量</th>
+		<th width="20%">餐次安排</th>
+		<th width="20%">执行人(岗位)</th>
+	</tr>
+	<tr>
+		<td width="40" rowspan="4">基础饮食</td>
+		<td style="text-align: left;">
+			<input type="checkbox" value="普食" <c:if test="${not empty nutrition.foodMeals}">checked="checked"</c:if>>普食
+		</td>
+		<td>
+			每日<input id="foodMeals" name="foodMeals" type="text" value="${nutrition.foodMeals}" maxlength="5" class="nutritionMeals">餐
+		</td>
+		<td>
+			每餐/g <input id="foodMealsNumber" name="foodMealsNumber" type="text" value="${nutrition.foodMealsNumber}" maxlength="5" class="nutritionMeals">
+		</td>
+		<td>
+			<input id="foodEnergy" name="foodEnergy" type="text" value="${nutrition.foodEnergy }" maxlength="5" class="nutritionEnergy">千焦
+		</td>
+		<td>
+			<tags:treeselect allowClear="true" notAllowSelectParent="true" url="/healtharchives/intervene/treeDataForEnum" id="foodArrange" name="foodArrange" checked="true"
+			value="${nutrition.foodArrange}" labelName=""  labelValue="${nutrition.foodArrange}" 
+			title="餐次安排" cssClass=""></tags:treeselect>
+		</td>
+		<td>
+			<tags:treeselect allowClear="true" notAllowSelectParent="true" url="/healtharchives/intervene/treeData" id="foodQuartersId" name="foodQuartersId" 
+			value="${nutrition.foodQuartersId}" labelName="foodQuartersNm"  labelValue="${nutrition.foodQuartersNm}" 
+			title="执行人(岗位)" cssClass="recoverQuarters "></tags:treeselect>
+		</td>
+	</tr>
+	<tr>
+		<td style="text-align: left;">
+			<input type="checkbox" value="软食" <c:if test="${not empty nutrition.papmeatMeals}">checked="checked"</c:if>>软食 
+		</td>
+		<td>
+			每日<input id="papmeatMeals" name="papmeatMeals" type="text" value="${nutrition.papmeatMeals}" maxlength="5" class="nutritionMeals">餐
+		</td>
+		<td>
+			每餐/g <input id="papmeatMealsNumber" name="papmeatMealsNumber" type="text" value="${nutrition.papmeatMealsNumber}" maxlength="5" class="nutritionMeals">
+		</td>
+		<td>
+			<input id="papmeatEnergy" name="papmeatEnergy" type="text" value="${nutrition.papmeatEnergy }" maxlength="5" class="nutritionEnergy">千焦
+		</td>
+		<td>
+			<tags:treeselect allowClear="true" notAllowSelectParent="true" url="/healtharchives/intervene/treeDataForEnum" id="papmeatArrange" name="papmeatArrange"  checked="true"
+			value="${nutrition.papmeatArrange}" labelName=""  labelValue="${nutrition.papmeatArrange}" 
+			title="餐次安排" cssClass=""></tags:treeselect>
+		</td>
+		<td>
+			<tags:treeselect allowClear="true" notAllowSelectParent="true" url="/healtharchives/intervene/treeData" id="papmeatQuartersId" name="papmeatQuartersId" 
+			value="${nutrition.papmeatQuartersId}" labelName="papmeatQuartersNm"  labelValue="${nutrition.papmeatQuartersNm}" 
+			title="执行人(岗位)" cssClass="recoverQuarters "></tags:treeselect>
+		</td>
+	</tr> 
+	<tr>
+		<td style="text-align: left;">
+			<input type="checkbox" value="半流质 " <c:if test="${not empty nutrition.semiLiquidMeals}">checked="checked"</c:if>>半流质 
+		</td>
+		<td>
+			每日<input id="semiLiquidMeals" name="semiLiquidMeals" type="text" value="${nutrition.semiLiquidMeals}" maxlength="5" class="nutritionMeals">餐
+		</td>
+		<td>
+			每餐/g <input id="semiLiquidMealsNumber" name="semiLiquidMealsNumber" type="text" value="${nutrition.semiLiquidMealsNumber}" maxlength="5" class="nutritionMeals">
+		</td>
+		<td>
+			<input id="semiLiquidEnergy" name="semiLiquidEnergy" type="text" value="${nutrition.semiLiquidEnergy }" maxlength="5" class="nutritionEnergy">千焦
+		</td>
+		<td>
+			<tags:treeselect allowClear="true" notAllowSelectParent="true" url="/healtharchives/intervene/treeDataForEnum" id="semiLiquidArrange" name="semiLiquidArrange"  checked="true"
+			value="${nutrition.semiLiquidArrange}" labelName=""  labelValue="${nutrition.semiLiquidArrange}" 
+			title="餐次安排" cssClass=""></tags:treeselect>
+		</td>
+		<td>
+			<tags:treeselect allowClear="true" notAllowSelectParent="true" url="/healtharchives/intervene/treeData" id="semiLiquidQuartersId" name="semiLiquidQuartersId" 
+			value="${nutrition.semiLiquidQuartersId}" labelName="semiLiquidQuartersNm"  labelValue="${nutrition.semiLiquidQuartersNm}" 
+			title="执行人(岗位)" cssClass="recoverQuarters "></tags:treeselect>
+		</td>
+	</tr>
+	<tr>
+		<td style="text-align: left;">
+			<input type="checkbox" value="流质" <c:if test="${not empty nutrition.liquidMeals}">checked="checked"</c:if>>流质
+		</td>
+		<td>
+			每日<input id="liquidMeals" name="liquidMeals" type="text" value="${nutrition.liquidMeals}" maxlength="5" class="nutritionMeals">餐
+		</td>
+		<td>
+			每餐/g <input id="liquidMealsNumber" name="liquidMealsNumber" type="text" value="${nutrition.liquidMealsNumber}" maxlength="5" class="nutritionMeals">
+		</td>
+		<td>
+			<input id="liquidEnergy" name="liquidEnergy" type="text" value="${nutrition.liquidEnergy }" maxlength="5" class="nutritionEnergy">千焦
+		</td>
+		<td>
+			<tags:treeselect allowClear="true" notAllowSelectParent="true" url="/healtharchives/intervene/treeDataForEnum" id="liquidArrange" name="liquidArrange"  checked="true"
+			value="${nutrition.liquidArrange}" labelName=""  labelValue="${nutrition.liquidArrange}" 
+			title="餐次安排" cssClass=""></tags:treeselect>
+		</td>
+		<td>
+			<tags:treeselect allowClear="true" notAllowSelectParent="true" url="/healtharchives/intervene/treeData" id="liquidQuartersId" name="liquidQuartersId" 
+			value="${nutrition.liquidQuartersId}" labelName="liquidQuartersNm"  labelValue="${nutrition.liquidQuartersNm}" 
+			title="执行人(岗位)" cssClass="recoverQuarters "></tags:treeselect>
+		</td>
+	</tr>
+	<tr>
+		<td colspan="2" style="text-align: left;">
+			<input type="checkbox" value="口服营养补充（ONS）" <c:if test="${not empty nutrition.onsMeals}">checked="checked"</c:if>>口服营养补充（ONS）
+		</td>
+		<td>
+			每日<input id="onsMeals" name="onsMeals" type="text" value="${nutrition.onsMeals}" maxlength="5" class="nutritionMeals">餐
+		</td>
+		<td>
+			每餐/g <input id="onsMealsNumber" name="onsMealsNumber" type="text" value="${nutrition.onsMealsNumber}" maxlength="5" class="nutritionMeals">
+		</td>
+		<td>
+			<input id="onsEnergy" name="onsEnergy" type="text" value="${nutrition.onsEnergy }" maxlength="5" class="nutritionEnergy">千焦
+		</td>
+		<td>
+			<tags:treeselect allowClear="true" notAllowSelectParent="true" url="/healtharchives/intervene/treeDataForEnum" id="onsArrange" name="onsArrange"  checked="true"
+			value="${nutrition.onsArrange}" labelName=""  labelValue="${nutrition.onsArrange}" 
+			title="餐次安排" cssClass=""></tags:treeselect>
+		</td>
+		<td>
+			<tags:treeselect allowClear="true" notAllowSelectParent="true" url="/healtharchives/intervene/treeData" id="onsQuartersId" name="onsQuartersId" 
+			value="${nutrition.onsQuartersId}" labelName="onsQuartersNm"  labelValue="${nutrition.onsQuartersNm}" 
+			title="执行人(岗位)" cssClass="recoverQuarters "></tags:treeselect>
+		</td>
+	</tr>
+	<tr>
+		<td colspan="2" style="text-align: left;">
+			<input type="checkbox" value="全天肠内营养(TEN)" <c:if test="${not empty nutrition.tenMeals}">checked="checked"</c:if>>全天肠内营养(TEN)
+		</td>
+		<td>
+			每日<input id="tenMeals" name="tenMeals" type="text" value="${nutrition.tenMeals}" maxlength="5" class="nutritionMeals">餐
+		</td>
+		<td>
+			每餐/g <input id="tenMealsNumber" name="tenMealsNumber" type="text" value="${nutrition.tenMealsNumber}" maxlength="5" class="nutritionMeals">
+		</td>
+		<td>
+			<input id="tenEnergy" name="tenEnergy" type="text" value="${nutrition.tenEnergy }" maxlength="5" class="nutritionEnergy">千焦
+		</td>
+		<td>
+			<tags:treeselect allowClear="true" notAllowSelectParent="true" url="/healtharchives/intervene/treeDataForEnum" id="tenArrange" name="tenArrange"  checked="true"
+			value="${nutrition.tenArrange}" labelName=""  labelValue="${nutrition.tenArrange}" 
+			title="餐次安排" cssClass=""></tags:treeselect>
+		</td>
+		<td>
+			<tags:treeselect allowClear="true" notAllowSelectParent="true" url="/healtharchives/intervene/treeData" id="tenQuartersId" name="tenQuartersId" 
+			value="${nutrition.tenQuartersId}" labelName="tenQuartersNm"  labelValue="${nutrition.tenQuartersNm}" 
+			title="执行人(岗位)" cssClass="recoverQuarters "></tags:treeselect>
+		</td>
+	</tr>
+	<tr>
+		<td colspan="2" style="text-align: left;">
+			<input type="checkbox" value="部分肠内（PEN）" <c:if test="${not empty nutrition.penMeals}">checked="checked"</c:if>>部分肠内（PEN）
+		</td>
+		<td>
+			每日<input id="penMeals" name="penMeals" type="text" value="${nutrition.penMeals}" maxlength="5" class="nutritionMeals">餐
+		</td>
+		<td>
+			每餐/g <input id="penMealsNumber" name="penMealsNumber" type="text" value="${nutrition.penMealsNumber}" maxlength="5" class="nutritionMeals">
+		</td>
+		<td>
+			<input id="penEnergy" name="penEnergy" type="text" value="${nutrition.penEnergy }" maxlength="5" class="nutritionEnergy">千焦
+		</td>
+		<td>
+			<tags:treeselect allowClear="true" notAllowSelectParent="true" url="/healtharchives/intervene/treeDataForEnum" id="penArrange" name="penArrange"  checked="true"
+			value="${nutrition.penArrange}" labelName=""  labelValue="${nutrition.penArrange}" 
+			title="餐次安排" cssClass=""></tags:treeselect>
+		</td>
+		<td>
+			<tags:treeselect allowClear="true" notAllowSelectParent="true" url="/healtharchives/intervene/treeData" id="penQuartersId" name="penQuartersId" 
+			value="${nutrition.penQuartersId}" labelName="penQuartersNm"  labelValue="${nutrition.penQuartersNm}" 
+			title="执行人(岗位)" cssClass="recoverQuarters "></tags:treeselect>
+		</td>
+	</tr>
+	<tr>
+		<td colspan="2" style="text-align: left;">
+			<input type="checkbox" value="部分肠外（PPN）" <c:if test="${not empty nutrition.ppnMeals}">checked="checked"</c:if>>部分肠外（PPN）
+		</td>
+		<td>
+			每日<input id="ppnMeals" name="ppnMeals" type="text" value="${nutrition.ppnMeals}" maxlength="5" class="nutritionMeals">餐
+		</td>
+		<td>
+			每餐/g <input id="ppnMealsNumber" name="ppnMealsNumber" type="text" value="${nutrition.ppnMealsNumber}" maxlength="5" class="nutritionMeals">
+		</td>
+		<td>
+			<input id="ppnEnergy" name="ppnEnergy" type="text" value="${nutrition.ppnEnergy }" maxlength="5" class="nutritionEnergy">千焦
+		</td>
+		<td>
+			<tags:treeselect allowClear="true" notAllowSelectParent="true" url="/healtharchives/intervene/treeDataForEnum" id="ppnArrange" name="ppnArrange"  checked="true"
+			value="${nutrition.ppnArrange}" labelName=""  labelValue="${nutrition.ppnArrange}" 
+			title="餐次安排" cssClass=""></tags:treeselect>
+		</td>
+		<td>
+			<tags:treeselect allowClear="true" notAllowSelectParent="true" url="/healtharchives/intervene/treeData" id="ppnQuartersId" name="ppnQuartersId" 
+			value="${nutrition.ppnQuartersId}" labelName="ppnQuartersNm"  labelValue="${nutrition.ppnQuartersNm}" 
+			title="执行人(岗位)" cssClass="recoverQuarters "></tags:treeselect>
+		</td>
+	</tr>
+	<tr>
+		<td colspan="2" style="text-align: left;">
+			<input type="checkbox" value="全天肠外营养(TPN)" <c:if test="${not empty nutrition.tpnMeals}">checked="checked"</c:if>>全天肠外营养(TPN)
+		</td>
+		<td>
+			每日<input id="tpnMeals" name="tpnMeals" type="text" value="${nutrition.tpnMeals}" maxlength="5" class="nutritionMeals">餐
+		</td>
+		<td>
+			每餐/g <input id="tpnMealsNumber" name="tpnMealsNumber" type="text" value="${nutrition.tpnMealsNumber}" maxlength="5" class="nutritionMeals">
+		</td>
+		<td>
+			<input id="tpnEnergy" name="tpnEnergy" type="text" value="${nutrition.tpnEnergy }" maxlength="5" class="nutritionEnergy">千焦
+		</td>
+		<td>
+			<tags:treeselect allowClear="true" notAllowSelectParent="true" url="/healtharchives/intervene/treeDataForEnum" id="tpnArrange" name="tpnArrange"  checked="true"
+			value="${nutrition.tpnArrange}" labelName=""  labelValue="${nutrition.tpnArrange}" 
+			title="餐次安排" cssClass=""></tags:treeselect>
+		</td>
+		<td>
+			<tags:treeselect allowClear="true" notAllowSelectParent="true" url="/healtharchives/intervene/treeData" id="tpnQuartersId" name="tpnQuartersId" 
+			value="${nutrition.tpnQuartersId}" labelName="tpnQuartersNm"  labelValue="${nutrition.tpnQuartersNm}" 
+			title="执行人(岗位)" cssClass="recoverQuarters "></tags:treeselect>
+		</td>
+	</tr>
+	<tr>
+		<td colspan="2" style="text-align: left;">
+			<input type="checkbox" value="饮水/喂水量 " <c:if test="${not empty nutrition.drinkWaterMealsNumber}">checked="checked"</c:if>>饮水/喂水量 
+		</td>
+		<td style="text-align: left;">
+			　　<input id="drinkWaterMealsNumber" name="drinkWaterMealsNumber" type="text" value="${nutrition.drinkWaterMealsNumber}" maxlength="5" class="nutritionDrinkWater">ml
+		</td>
+		<td></td>
+		<td>
+			<input id="drinkWaterEnergy" name="drinkWaterEnergy" type="text" value="${nutrition.drinkWaterEnergy }" maxlength="5" class="nutritionEnergy">千焦
+		</td>
+		<td>
+			<tags:treeselect allowClear="true" notAllowSelectParent="true" url="/healtharchives/intervene/treeDataForEnum" id="drinkWaterArrange" name="drinkWaterArrange"  checked="true"
+			value="${nutrition.drinkWaterArrange}" labelName=""  labelValue="${nutrition.drinkWaterArrange}" 
+			title="餐次安排" cssClass=""></tags:treeselect>
+		</td>
+		<td>
+			<tags:treeselect allowClear="true" notAllowSelectParent="true" url="/healtharchives/intervene/treeData" id="nutritionDrinkWaterQuartersId" name="drinkWaterQuartersId" 
+			value="${nutrition.drinkWaterQuartersId}" labelName="drinkWaterQuartersNm"  labelValue="${nutrition.drinkWaterQuartersNm}" 
+			title="执行人(岗位)" cssClass="recoverQuarters "></tags:treeselect>
+		</td>
+	</tr>
+	<tr>
+		<td colspan="2">合计摄入水量/ml
+			<input id="waterTotal" name="waterTotal" type="text" value="${nutrition.waterTotal}" readonly="readonly" maxlength="5" class="nutritionMeals">
+		</td>
+		<td colspan="2">合计能量/千焦
+			<input id="energyTotal" name="energyTotal" type="text" value="${nutrition.energyTotal}" readonly="readonly" class="energyTotal">千焦
+		</td>
+	</tr>
+</table>
+<div class="docDiv">
+	<div class="doctorDiv">	
+		<label class="doctorLabel">进餐环境设置</label>
+		<textarea id="dineAmbient" name="dineAmbient" maxlength="100" rows="2" cols="5" style="min-width: 550px;">${nutrition.dineAmbient}</textarea>
+	</div>
+</div>
+<div class="docDiv">
+	<div class="doctorDiv">	
+		<label class="doctorLabel">进餐餐具</label>
+		<textarea id="dineTableware" name="dineTableware" maxlength="100" rows="2" cols="5" style="min-width: 550px;">${nutrition.dineTableware}</textarea>
+	</div>
+</div>
+<div class="docDiv">
+	<div class="doctorDiv">	
+		<label class="doctorLabel">进餐注意事项</label>
+		<textarea id="dineAttention" name="dineAttention" maxlength="100" rows="2" cols="5" style="min-width: 550px;">${nutrition.dineAttention}</textarea>
+	</div>
+</div>
+<div class="form-actions">
+<c:if test="${intervene.state == 0 || intervene.state == 2 }">
+	<input id="btnSubmit" class="btn btn-yellow" type="button" onclick="submitBut('nutritionForm','${ctx}/healtharchives/intervene/saveNutrition')" value="保 存"/>&nbsp;
+</c:if>
+	<input id="btnCancel" class="btn" type="button" value="返 回" onclick="history.go(-1)"/>
+	<input id="btnPrint" class="btn" type="button" value="打印" onclick="preview('1');"/>
+</div>
+</form:form>

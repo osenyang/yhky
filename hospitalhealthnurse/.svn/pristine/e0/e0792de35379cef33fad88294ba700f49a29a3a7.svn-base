@@ -1,0 +1,66 @@
+package com.elink.hospitalhealthnurse.modules.healtharchives.service;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.elink.hospitalhealthnurse.common.persistence.Page;
+import com.elink.hospitalhealthnurse.common.service.BaseService;
+import com.elink.hospitalhealthnurse.modules.healtharchives.entity.Nutrition;
+import com.elink.hospitalhealthnurse.modules.healtharchives.vo.NutritionVO;
+import com.elink.hospitalhealthnurse.modules.healtharchives.dao.NutritionDao;
+
+/**
+ * 营养计划Service
+ * @author 杜康
+ * @version 2016-10-26
+ */
+@Component
+@Transactional(readOnly = true)
+public class NutritionService extends BaseService {
+
+	@Autowired
+	private NutritionDao nutritionDao;
+	
+	public Nutrition get(String id) {
+		return nutritionDao.get(id);
+	}
+	
+	public Page<Nutrition> find(Page<Nutrition> page, Nutrition nutrition) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT t.* FROM hn_health_nutrition t");
+		sb.append(" WHERE t.del_flag = '"+Nutrition.DEL_FLAG_NORMAL+"'");
+		sb.append(" ORDER BY t.create_date desc");
+		return nutritionDao.findBySqlExt(page, sb.toString(), Nutrition.class);
+	}
+	
+	@Transactional(readOnly = false)
+	public void save(Nutrition nutrition) {
+		nutritionDao.save(nutrition);
+	}
+	
+	@Transactional(readOnly = false)
+	public void delete(String id) {
+		nutritionDao.deleteById(id);
+	}
+	/**
+	 * 根据ID查询营养计划
+	 * @author dk
+	 * @data 2016-11-16
+	 * @param Id
+	 * @return 
+	 * */
+	public NutritionVO findByIdWs(String id){
+		StringBuffer sql = new StringBuffer();
+		sql.append("select t1.img_url dietitian_photo, t.* from hn_health_nutrition t ");
+		sql.append(" left join sys_service_user t1 on t1.job_number = t.dietitian_id ");
+		sql.append(" where t.id = '"+id+"'");
+		List<NutritionVO> nutritionList = nutritionDao.findBySqlExt(sql.toString(), null, NutritionVO.class);
+		if(nutritionList != null && nutritionList.size() > 0){
+			return nutritionList.get(0);
+		}
+		return new NutritionVO();
+	}
+}

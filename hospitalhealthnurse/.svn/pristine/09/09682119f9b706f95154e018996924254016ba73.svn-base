@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE xml>
+<ehcache updateCheck="false" name="hibernateCache">
+
+	<diskStore path="java.io.tmpdir/jeesite/ehcache/hibernate" />
+
+	<!-- DefaultCache setting. -->
+	<defaultCache maxEntriesLocalHeap="60000" eternal="false" timeToIdleSeconds="300" timeToLiveSeconds="600" 
+		overflowToDisk="true" maxEntriesLocalDisk="100000" />
+	
+	<cache name="com.elink.hospitalhealthnurse.modules.sys.entity.Dict" maxEntriesLocalHeap="100000" eternal="false" overflowToDisk="true" maxEntriesLocalDisk="100000" />
+	
+	<cache name="com.elink.hospitalhealthnurse.modules.sys.entity.Area" maxEntriesLocalHeap="100000" eternal="false" timeToIdleSeconds="300" timeToLiveSeconds="600"  overflowToDisk="true" maxEntriesLocalDisk="100000" />
+	<cache name="com.elink.hospitalhealthnurse.modules.sys.entity.Area.childList" maxEntriesLocalHeap="100000" timeToIdleSeconds="300" timeToLiveSeconds="600"  eternal="false" overflowToDisk="true" maxEntriesLocalDisk="100000" />
+	
+	<cache name="com.elink.hospitalhealthnurse.modules.sys.entity.Menu" maxEntriesLocalHeap="100000" eternal="false" timeToIdleSeconds="300" timeToLiveSeconds="600"  overflowToDisk="true" maxEntriesLocalDisk="100000" />
+	<cache name="com.elink.hospitalhealthnurse.modules.sys.entity.Menu.roleList" maxEntriesLocalHeap="100000" timeToIdleSeconds="300" timeToLiveSeconds="600"  eternal="false" overflowToDisk="true" maxEntriesLocalDisk="100000" />
+	
+	<cache name="com.elink.hospitalhealthnurse.modules.sys.entity.Role" maxEntriesLocalHeap="100000" eternal="false" timeToIdleSeconds="300" timeToLiveSeconds="600"  overflowToDisk="true" maxEntriesLocalDisk="100000" />
+	<cache name="com.elink.hospitalhealthnurse.modules.sys.entity.Role.menuList" maxEntriesLocalHeap="100000" timeToIdleSeconds="300" timeToLiveSeconds="600"  eternal="false" overflowToDisk="true" maxEntriesLocalDisk="100000" />
+	<cache name="com.elink.hospitalhealthnurse.modules.sys.entity.Role.userList" maxEntriesLocalHeap="100000" timeToIdleSeconds="300" timeToLiveSeconds="600"  eternal="false" overflowToDisk="true" maxEntriesLocalDisk="100000" />
+	
+	<cache name="com.elink.hospitalhealthnurse.modules.sys.entity.User" maxEntriesLocalHeap="100000" eternal="false" timeToIdleSeconds="300" timeToLiveSeconds="600"  overflowToDisk="true" maxEntriesLocalDisk="100000" />
+	<cache name="com.elink.hospitalhealthnurse.modules.sys.entity.User.roleList" maxEntriesLocalHeap="100000"  timeToIdleSeconds="300" timeToLiveSeconds="600"  eternal="false" overflowToDisk="true" maxEntriesLocalDisk="100000" />
+	
+</ehcache>

@@ -1,0 +1,940 @@
+<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ include file="/WEB-INF/views/include/taglib.jsp"%>
+<html>
+<head>
+<title>干预方案管理</title>
+<meta name="decorator" content="default"/>
+<script type="text/javascript">
+var fromName = 'assessmentDiv';
+$(document).ready(function() {
+	$("#menuDiv .btn").click(function(){
+    	$("#menuDiv .btn").each(function(){
+    		$(this).removeClass("selected");
+    	}); 
+        $(this).addClass("selected");  
+                
+    });
+	$("#inputForm").validate();
+	$("#assessmentForm").validate();
+	$("#careForm").validate();
+	$("#nurserForm").validate();
+	$("#nutritionForm").validate();
+	$("#recoverForm").validate();
+	$("#socialForm").validate({
+		rules : {
+			costBear:{maxlength:100},
+		},
+		messages: {
+			costBear:{maxlength:"输入长度不能超过100"},
+		},
+	});
+	
+	$("#drinkWaterMealsNumber").blur(function(event){
+		$("#waterTotal").val($("#drinkWaterMealsNumber").val());
+	});
+	$(".nutritionEnergy").blur(function(event){
+		var sum = 0;
+		$(".nutritionEnergy").each(function() {
+			v = parseFloat($(this).val());
+			v = isNaN(v)?0:v;
+			sum += v;
+		});
+		$("#energyTotal").val(sum);
+	});
+	$(".nutritionMeals").keyup(function () {
+        //如果输入非数字，则替换为''
+        this.value = this.value.replace(/[^\d]/g, '');
+    })
+    $(".nutritionEnergy").keyup(function () {
+        //如果输入非数字，则替换为''
+        this.value = this.value.replace(/[^\d]/g, '');
+    })
+});
+function changeDiv(divStr){
+	$("#"+fromName).hide();
+	$("#"+divStr).show();
+	fromName=divStr;
+}
+var tipName;
+//保存计划
+function submitBut(fromId,fromUrl){
+	var booleans =true;
+	if(fromId == "nutritionForm"){
+		//booleans = nutritionValidate(fromId);
+	}else if(fromId == "recoverForm"){
+		booleans = recoverValidate(fromId);
+	}else if(fromId == "careForm" || fromId == "nurserForm"){
+		booleans = validateTable(fromId);
+	}
+	if($("#"+fromId).valid()){
+		if(booleans){
+			$.ajax({
+		        cache: true,
+		        type: "POST",
+		        url:fromUrl,
+		        data:$('#'+fromId).serialize(),// 你的formid
+		        async: false,
+		        error: function(request) {
+		            alert("Connection error");
+		        },
+		        success: function(data) {
+		        	var obj = eval("("+data+")");
+		            alert(obj.message);
+		        }
+		    });
+		}
+	}	
+}
+//验证
+/* function validateTable(fromId){
+	var booleans = true;
+	var checkNumber = 0;
+	$("#"+fromId+" table tr").each(function(){
+		var isCheck = false;
+		$(this).find("td").each(function(tdindex,tditem){
+			if(tdindex == 0){
+				$(tditem).find("input[type='checkbox']").each(function(){
+					tipName = $(this).val();
+				});
+			}
+			if(tdindex == 1){
+				$(tditem).find("input[type='checkbox']").each(function(){
+					if($(this).is(':checked')){
+						isCheck = true;
+						++checkNumber;
+					}
+				});
+				$(tditem).find("input[type='radio']").each(function(){
+					if($(this).is(':checked')){
+						isCheck = true;
+						++checkNumber;
+					}
+				});
+			}
+			if(isCheck){
+				if(tdindex != 1){
+					$(this).find("input[type='text']").each(function(){
+						if($(this).val().length == 0){
+							alert("请选择"+tipName+"的执行人(岗位)和开始执行时间");
+							booleans = false;
+							return false;
+						}
+					});
+				}
+			}else{
+				if(tdindex != 1){
+					$(this).find("input[type='text']").each(function(){
+						if($(this).val().length > 0){
+							alert("请选择"+tipName);
+							booleans = false;
+							return false;
+						}
+					});
+				}
+			}
+			if(!booleans){
+				return false;
+			}
+		});
+		if(!booleans){
+			return false;
+		}
+	});
+	if(checkNumber == 0){
+		alert("请选择服务项目");
+		return false;
+	}
+	return booleans;
+} */
+
+//验证
+function validateTable(fromId){
+	var booleans = true;
+	var checkNumber = 0;
+	$("#"+fromId+" table tr").each(function(){
+		var isCheck = false;
+		$(this).find("td").each(function(tdindex,tditem){
+			if(tdindex == 0){
+				$(tditem).find("input[type='checkbox']").each(function(){
+					tipName = $(this).val();
+				});
+			}
+			if(tdindex == 1){
+				$(tditem).find("input[type='checkbox']").each(function(){
+					if($(this).is(':checked')){
+						isCheck = true;
+						++checkNumber;
+					}
+				});
+				$(tditem).find("input[type='radio']").each(function(){
+					if($(this).is(':checked')){
+						isCheck = true;
+						++checkNumber;
+					}
+				});
+				$(tditem).find("input[type='text']").each(function(){
+					if($(this).val().length > 0){
+						isCheck = true;
+						++checkNumber;
+					}
+				});
+			}
+			if(isCheck){
+				if(tdindex != 1){
+					$(this).find("input[type='text']").each(function(){
+						if($(this).val().length == 0){
+							alert("请选择"+tipName+"的执行人(岗位)和开始执行时间");
+							booleans = false;
+							return false;
+						}
+					});
+				}
+			}else{
+				if(tdindex != 1){
+					$(this).find("input[type='text']").each(function(){
+						if($(this).val().length > 0){
+							alert("请选择"+tipName);
+							booleans = false;
+							return false;
+						}
+					});
+				}
+			}
+			if(!booleans){
+				return false;
+			}
+		});
+		if(!booleans){
+			return false;
+		}
+	});
+	if(checkNumber == 0){
+		alert("请选择服务项目");
+		return false;
+	}
+	return booleans;
+}
+
+//营养计划验证
+function nutritionValidate(fromId){
+	var booleans = true;
+	var checkNumber = 0;
+	$("#"+fromId+" table tr").each(function(trindex,tritem){
+		if(trindex < 5){
+			if(trindex > 1){
+				var isCheck = false;
+				$(this).find("td").each(function(tdindex,tditem){
+					if(tdindex == 0){
+						$(tditem).find("input[type='checkbox']").each(function(){
+							tipName = "基础饮食("+$(this).val()+")";
+							if($(this).is(':checked')){
+								isCheck = true;
+								++checkNumber;
+							}
+						});
+					}
+					if(isCheck){
+						if(tdindex != 0){
+							$(this).find("input[type='text']").each(function(){
+								if($(this).val().length == 0){
+									alert("请填写完整"+tipName);
+									booleans = false;
+									return false;
+								}
+							});
+						}
+					}else{
+						if(tdindex != 1){
+							$(this).find("input[type='text']").each(function(){
+								if($(this).val().length > 0){
+									alert("请填写完整"+tipName);
+									booleans = false;
+									return false;
+								}
+							});
+						}
+					}
+					if(!booleans){
+						return false;
+					}
+				});
+			}else{
+				var isCheck = false;
+				$(this).find("td").each(function(tdindex,tditem){
+					if(tdindex == 1){
+						$(tditem).find("input[type='checkbox']").each(function(){
+							tipName = "基础饮食("+$(this).val()+")";
+							if($(this).is(':checked')){
+								isCheck = true;
+								++checkNumber;
+							}
+						});
+					}
+					if(isCheck){
+						if(tdindex != 1){
+							$(this).find("input[type='text']").each(function(){
+								if($(this).val().length == 0){
+									alert("请填写完整"+tipName);
+									booleans = false;
+									return false;
+								}
+							});
+						}
+					}else{
+						if(tdindex != 1){
+							$(this).find("input[type='text']").each(function(){
+								if($(this).val().length > 0){
+									alert("请填写完整"+tipName);
+									booleans = false;
+									return false;
+								}
+							});
+						}
+					}
+					if(!booleans){
+						return false;
+					}
+				});
+			}
+		}else if(trindex < 11){
+			var isCheck = false;
+			$(this).find("td").each(function(tdindex,tditem){
+				if(tdindex == 0){
+					$(tditem).find("input[type='checkbox']").each(function(){
+						tipName = $(this).val();
+						if($(this).is(':checked')){
+							isCheck = true;
+							++checkNumber;
+						}
+					});
+				}
+				if(isCheck){
+					if(tdindex != 0){
+						$(this).find("input[type='text']").each(function(){
+							if($(this).val().length == 0){
+								alert("请填写完整"+tipName);
+								booleans = false;
+								return false;
+							}
+						});
+					}
+				}else{
+					if(tdindex != 0){
+						$(this).find("input[type='text']").each(function(){
+							if($(this).val().length > 0){
+								alert("请填写完整"+tipName);
+								booleans = false;
+								return false;
+							}
+						});
+					}
+				}
+				if(!booleans){
+					return false;
+				}
+			});
+		}
+		if(!booleans){
+			return false;
+		}
+	});
+	if(checkNumber == 0){
+		//alert("请选择服务项目");
+		return true;//osenyang
+	}
+	return true;//osenyang
+}
+//康复计划验证
+function recoverValidate(fromId){
+	var booleans = true;
+	var checkNumber = 0;
+	$("#"+fromId+" table tr").each(function(trindex,tritem){
+		var isCheck = false;
+		$(this).find("td").each(function(tdindex,tditem){
+			if(trindex == 1){
+				if(tdindex == 0){
+					tipName = "";
+					$(tditem).find("input[type='checkbox']").each(function(){
+						tipName += $(this).val()+",";
+						if($(this).is(':checked')){
+							isCheck = true;
+							++checkNumber;
+						}
+					});
+					if(tipName != ""){
+						tipName = tipName.substring(0,tipName.length-1);
+					}
+				}
+			}else{
+				if(tdindex == 0){
+					$(tditem).find("input[type='checkbox']").each(function(){
+						tipName = $(this).val();
+						if($(this).is(':checked')){
+							isCheck = true;
+							++checkNumber;
+						}
+					});
+				}
+			}
+			if(isCheck){
+				if(tdindex != 0){
+					$(this).find("input[type='text']").each(function(){
+						if($(this).val().length == 0){
+							alert("请填写完整"+tipName);
+							booleans = false;
+							return false;
+						}
+					});
+				}
+			}else{
+				if(tdindex != 0){
+					$(this).find("input[type='text']").each(function(){
+						if($(this).val().length > 0){
+							alert("请填写完整"+tipName);
+							booleans = false;
+							return false;
+						}
+					});
+				}
+			}
+			if(!booleans){
+				return false;
+			}
+		});
+		if(!booleans){
+			return false;
+		}
+	});
+	if(checkNumber == 0){
+		alert("请选择服务项目");
+		return false;
+	}
+	return booleans;
+}
+//添加兴趣爱好
+function addHobby(){
+	// 正常打开	
+	top.$.jBox.open("iframe:${ctx}/healtharchives/hobby/form?interveneId=${intervene.id}", "添加兴趣爱好", 700, 500, {
+		buttons:{"确定":"ok","关闭":true}, submit:function(v, h, f){
+			if (v=="ok"){
+				var fromdata = h.find("iframe")[0].contentWindow.$("#inputForm");
+				if(fromdata.valid()){
+					$.ajax({
+				        cache: true,
+				        type: "POST",
+				        url:"${ctx}/healtharchives/intervene/saveHobby",
+				        data:fromdata.serialize(),
+				        async: false,
+				        error: function(request) {
+				            alert("Connection error");
+				        },
+				        success: function(data) {
+				        	var obj = eval("("+data+")");
+				        	var hobby = eval("("+obj.hobby+")");
+				        	var str = "<tr id='"+hobby.id+"'><td>"+hobby.hobby+"</td><td>"+hobby.hobbyAsk+"</td><td>"+hobby.hobbyStartTime+"~"+hobby.hobbyEndTime+"</td><td>"+hobby.hobbyOther+"</td><td>"+hobby.hobbyQuartersNm+"</td>"+
+				        	"<td><a onclick=\"updateHobby('"+hobby.id+"')\">修改</a>　<a onclick=\"deleteHobby('"+hobby.id+"')\">删除</a>	</td></tr>";
+				        	$('#hobbyTable').append(str);
+				        	alert(obj.message);
+				        }
+				    }); 
+				}else{
+					return false;
+				}
+			}
+		}, loaded:function(h){
+			$(".jbox-content", top.document).css("overflow-y","hidden");
+		}
+	});
+}
+//修改兴趣爱好
+function updateHobby(hobbyId){
+	// 正常打开	
+	top.$.jBox.open("iframe:${ctx}/healtharchives/hobby/form?interveneId=${intervene.id}&id="+hobbyId, "修改兴趣爱好", 700, 500, {
+		buttons:{"确定":"ok","关闭":true}, submit:function(v, h, f){
+			if (v=="ok"){
+				var fromdata = h.find("iframe")[0].contentWindow.$("#inputForm");
+				if(fromdata.valid()){
+					$.ajax({
+				        cache: true,
+				        type: "POST",
+				        url:"${ctx}/healtharchives/intervene/saveHobby",
+				        data:fromdata.serialize(),
+				        async: false,
+				        error: function(request) {
+				            alert("Connection error");
+				        },
+				        success: function(data) {
+				        	var obj = eval("("+data+")");
+				        	var hobby = eval("("+obj.hobby+")");
+				        	$("#"+hobbyId).remove();
+				        	var str = "<tr id='"+hobby.id+"'><td>"+hobby.hobby+"</td><td>"+hobby.hobbyAsk+"</td><td>"+hobby.hobbyStartTime+"~"+hobby.hobbyEndTime+"</td><td>"+hobby.hobbyOther+"</td><td>"+hobby.hobbyQuartersNm+"</td>"+
+				        	"<td><a onclick=\"updateHobby('"+hobby.id+"')\">修改</a>　<a onclick=\"deleteHobby('"+hobby.id+"')\">删除</a>	</td></tr>";
+				        	$('#hobbyTable').append(str);
+				        	alert(obj.message);
+				        }
+				    });
+				}else{
+					return false;
+				}
+			}
+		}, loaded:function(h){
+			$(".jbox-content", top.document).css("overflow-y","hidden");
+		}
+	});
+}
+function deleteHobby(hobbyId){
+	if(confirm("确定要删除兴趣爱好吗？")){
+		$.ajax({
+	        cache: true,
+	        type: "POST",
+	        url: "${ctx}/healtharchives/intervene/deleteByHobbyId?hobbyId="+hobbyId,
+	        async: false,
+	        error: function(request) {
+	            alert("Connection error");
+	        },
+	        success: function(data) {
+	        	var obj = eval("("+data+")");
+	            alert(obj.message);
+	            $("#"+hobbyId).remove();
+	        }
+	    }); 
+	}
+}
+//添加应急计划
+function addMeet(){
+	// 正常打开	
+	top.$.jBox.open("iframe:${ctx}/healtharchives/meet/formByInterveneId?interveneId=${intervene.id}", "添加应急计划", 700, 500, {
+		buttons:{"确定":"ok","关闭":true}, submit:function(v, h, f){
+			if (v=="ok"){
+				var fromdata = h.find("iframe")[0].contentWindow.$("#inputForm");
+				if(fromdata.valid()){
+					$.ajax({
+				        cache: true,
+				        type: "POST",
+				        url:"${ctx}/healtharchives/intervene/saveMeet",
+				        data:fromdata.serialize(),
+				        async: false,
+				        error: function(request) {
+				            alert("Connection error");
+				        },
+				        success: function(data) {
+				        	var obj = eval("("+data+")");
+				        	var meet = eval("("+obj.meet+")");
+				        	var str = "<tr id='"+meet.id+"'><td>"+meet.entryName+"</td><td>共"+meet.frequencyTotal+"次</td>"+
+				        	"<td>"+meet.frequency+"次/日</td><td>"+meet.frequencyTime+"分钟/次</td><td>"+meet.startTime+"~"+meet.endTime+"</td><td>"+meet.quartersNm+"</td>"+
+				        	"<td><a onclick=\"updateMeet('"+meet.id+"')\">修改</a>　<a onclick=\"deleteMeet('"+meet.id+"')\">删除</a>	</td></tr>";
+				        	$('#meetTable').append(str);
+				        	alert(obj.message);
+				        }
+				    });
+				}else{
+					return false;
+				}
+				 
+			}
+		}, loaded:function(h){
+			$(".jbox-content", top.document).css("overflow-y","hidden");
+		}
+	});
+}
+//修改应急计划
+function updateMeet(meetId){
+	// 正常打开	
+	top.$.jBox.open("iframe:${ctx}/healtharchives/meet/formByInterveneId?interveneId=${intervene.id}&id="+meetId, "添加应急计划", 700, 500, {
+		buttons:{"确定":"ok","关闭":true}, submit:function(v, h, f){
+			if (v=="ok"){
+				var fromdata = h.find("iframe")[0].contentWindow.$("#inputForm");
+				if(fromdata.valid()){
+					$.ajax({
+				        cache: true,
+				        type: "POST",
+				        url:"${ctx}/healtharchives/intervene/saveMeet",
+				        data:fromdata.serialize(),
+				        async: false,
+				        error: function(request) {
+				            alert("Connection error");
+				        },
+				        success: function(data) {
+				        	var obj = eval("("+data+")");
+				        	var meet = eval("("+obj.meet+")");
+				        	$("#"+meetId).remove();
+				        	var str = "<tr id='"+meet.id+"'><td>"+meet.entryName+"</td><td>共"+meet.frequencyTotal+"次</td>"+
+				        	"<td>"+meet.frequency+"次/日</td><td>"+meet.frequencyTime+"分钟/次</td><td>"+meet.startTime+"~"+meet.endTime+"</td><td>"+meet.quartersNm+"</td>"+
+				        	"<td><a onclick=\"updateMeet('"+meet.id+"')\">修改</a>　<a onclick=\"deleteMeet('"+meet.id+"')\">删除</a>	</td></tr>";
+				        	$('#meetTable').append(str);
+				        	alert(obj.message);
+				        }
+				    }); 
+				}else{
+					return false;
+				}
+			}
+		}, loaded:function(h){
+			$(".jbox-content", top.document).css("overflow-y","hidden");
+		}
+	});
+}
+//删除应急计划
+function deleteMeet(meetId){
+	if(confirm("确定要删除应急计划吗？")){
+		$.ajax({
+	        cache: true,
+	        type: "POST",
+	        url: "${ctx}/healtharchives/intervene/deleteByMeetId?meetId="+meetId,
+	        async: false,
+	        error: function(request) {
+	            alert("Connection error");
+	        },
+	        success: function(data) {
+	        	var obj = eval("("+data+")");
+	            alert(obj.message);
+	            $("#"+meetId).remove();
+	        }
+	    }); 
+	}
+}
+/**打印*/
+function preview(obj){
+	$(".form-actions").hide();
+	$("#menuDiv").hide();
+	window.print();
+	$(".form-actions").show();
+	$("#menuDiv").show();
+}
+
+/**类型更改事件*/
+function changeType(str){
+	if($("#"+str+"Type").val() == '0'){
+		$("#"+str+"Day").show();
+		$("#"+str+"Week").hide();
+		$("#"+str+"Details").show();
+		$("#"+str+"Interval").val($("#"+str+"DaySelect").val());
+	}else if($("#"+str+"Type").val() == '1'){
+		$("#"+str+"Day").hide();
+		$("#"+str+"Week").show();
+		$("#"+str+"Details").show();
+		$("#"+str+"Interval").val($("#"+str+"WeekSelect").val());
+	}else{
+		$("#"+str+"Day").hide();
+		$("#"+str+"Week").hide();
+		$("#"+str+"Details").hide();
+	}
+	$("#"+str+"Details").val("");
+}
+/**间隔天更改事件*/
+function changeSelectDay(str){
+	$("#"+str+"Interval").val($("#"+str+"DaySelect").val());
+}
+/**间隔一周更改事件*/
+function changeSelectWeek(str){
+	$("#"+str+"Interval").val($("#"+str+"WeekSelect").val());
+}
+
+
+//添加项目
+function addItem(extralStr){
+	// 正常打开	
+	top.$.jBox.open("iframe:${ctx}/healtharchives/extraItems/form?interveneId=${intervene.id}", "添加项目", 500, 500, {
+		buttons:{"确定":"ok","关闭":true}, submit:function(v, h, f){
+			if (v=="ok"){
+				var fromdata = h.find("iframe")[0].contentWindow.$("#inputForm");
+				if(fromdata.valid()){
+					$.ajax({
+				        cache: true,
+				        type: "POST",
+				        url:"${ctx}/healtharchives/extraItems/saveBean",
+				        data:fromdata.serialize(),
+				        async: false,
+				        error: function(request) {
+				            alert("Connection error");
+				        },
+				        success: function(data) {
+				        	var obj = eval("("+data+")");
+				        	var extraItems = eval("("+obj.extraItems+")");
+				        	var str = "<tr id='"+extraItems.id+"'><td width='130'><input type='hidden' name='extraItemsId' value='"+extraItems.id+"'>"+extraItems.projectNm+"</td><td>";
+				        	if(extraItems.frequencyType == '0'){
+								if(extraItems.intervals == '1'){
+									str += "每天";			        			
+								}
+								if(extraItems.intervals == '2'){
+									str += "隔天";
+								}
+								if(extraItems.intervals == '3'){
+									str += "隔两天";
+								}
+								if(extraItems.intervals == '4'){
+									str += "隔三天";
+								}
+				        	}else{
+				        		if(extraItems.frequencyType == '0'){
+									if(extraItems.intervals == '1'){
+										str += "每周";			        			
+									}
+									if(extraItems.intervals == '2'){
+										str += "隔周";
+									}
+									if(extraItems.intervals == '3'){
+										str += "隔两周";
+									}
+									if(extraItems.intervals == '4'){
+										str += "隔三周";
+									}
+				        		}
+				        	}
+				        	str += extraItems.dateArray+"</td><td width='120'>"+extraItems.quartersNm+"</td><td width='140'>"+extraItems.exeTime+"</td><td><a onclick='deleteExt(\""+extraItems.id+"\")'>删除</a></td></tr>";
+				        	$('#'+extralStr).append(str);
+				        	alert(obj.message);
+				        }
+				    }); 
+				}else{
+					return false;
+				}
+			}
+		}, loaded:function(h){
+			$(".jbox-content", top.document).css("overflow-y","hidden");
+		}
+	});
+}
+//删除项目
+function deleteExt(extId){
+	if(confirm("确定要删除项目吗？")){
+		$.ajax({
+	        cache: true,
+	        type: "POST",
+	        url: "${ctx}/healtharchives/extraItems/deleteById?id="+extId,
+	        async: false,
+	        error: function(request) {
+	            alert("Connection error");
+	        },
+	        success: function(data) {
+	        	var obj = eval("("+data+")");
+	            alert(obj.message);
+	            $("#"+extId).remove();
+	        }
+	    }); 
+	}
+}
+</script>
+<style type="text/css">
+/* body{
+	width: 210mm;
+	margin: auto;
+} */
+a:HOVER{
+	cursor: pointer;
+}
+.tishi{
+	color: #FF0000;
+	font-weight: bold;
+	margin-right: 5px;
+}
+.photoDiv{
+	float: left;
+	width: 100px;
+	height: 100px;
+	padding:20px 0px 0px 10px;
+}
+.inforDiv{
+	float: left;
+	left: 0px;
+	height: 50px;
+	width: 100%;
+	padding: 0;
+	margin: 0;
+}
+.inforLabel{
+	height: 20px;
+	line-height: 20px;
+	font-size: 16px;
+	top: 15px;
+	position: relative;
+	margin-left: 20px;
+	min-width: 100px;
+}
+.inforLabel span{
+	font-weight: bold;
+}
+.planDiv{
+	text-align: center;
+}
+.planDiv input{
+	margin: 0 15px;
+}
+.docDiv{
+	width: 100%;
+	float: left;
+	margin-top: 20px;
+}
+.doctorDiv{
+	float: left;
+	margin: auto 20px;
+}
+.doctorLabel{
+	min-width: 120px;
+	text-align: right;
+}
+.table-label{
+	float: right;
+}
+.table-textarea{
+	float: left;
+}
+.lineDiv{
+	border-bottom: 1px solid #93BAB6; 
+	width: 100%;
+	float: left;
+	margin-top: 5px;
+	margin-bottom: 20px;
+}
+.lineDiv input{
+	min-width: 100px;
+	background: #49AFB3;
+	border: 0;
+	border-radius: 1px;
+	color: #FFFFFF;
+	font-size: 14px;
+	font-weight: bold;
+}
+.groupDiv{
+	width: 100%;
+	float: left;
+	margin-top: 5px;
+}
+.control-div{
+	margin-top: 10px;
+	float: left;
+}
+.control-input{
+	float: left;
+	width: 100px;
+}
+.control-span{
+	float: left;
+	margin: 5px;
+}
+.interveneTable{
+	width: 98%;
+	margin: auto 1%; 
+}
+.nutritionMeals,.nutritionEnergy,.energyTotal,.nutritionDrinkWater,.recoverInput,.socialFamily{
+	width: 50px
+}
+.recoverQuarters{
+	width: 100px;
+}
+.recoverTime{
+	width: 130px;
+}
+.socialLabel{
+	min-width: 130px;
+}
+.addTableDiv{
+	width: 80%;
+	float: left;
+	text-align: right;
+	margin: 20px 10% auto;
+}
+.selected{
+	background: #20B496 !important;
+	color: #FFFFFF !important;
+}
+.input-medium{
+	width: 130px;
+}
+.form-actions{
+	text-align: center;
+}
+.selectType{
+	width: 100px;
+	float: left;
+}
+.dateDay{
+	width: 200px;
+	float: left;
+}
+.dateWeek{
+	width: 200px;
+	float: left;
+}
+</style>
+</head>
+<body>
+	<%-- <form:form id="inputForm" modelAttribute="intervene" action="${ctx}/healtharchives/intervene/save" method="post" class="form-horizontal">
+		<form:hidden path="id"/> 
+		<tags:message content="${message}"/>--%>
+		
+		<div class="control-group">
+			<%-- <div class="photoDiv">
+				<tags:printImg defaultUrl="/static/images/archives.png" imgOriUrl="${intervene.photo}" imgUrl="${intervene.photo}" width="100" height="100" />
+			</div> --%>
+			<div class="inforDiv">
+				<label class="inforLabel"><span>姓名：</span>${intervene.fullNm }</label>
+				<label class="inforLabel"><span>性别：</span>${intervene.sex }</label>
+				<label class="inforLabel"><span>年龄：</span>${intervene.age }</label>
+				<label class="inforLabel"><span>文化程度：</span>${fns:getDictLabel(intervene.degree, 'hn_culture', '无')}</label>
+				<label class="inforLabel"><span>职业：</span>${intervene.occupation }</label>
+			</div>
+			<div class="inforDiv">
+				<label class="inforLabel"><span>住院号：</span>${intervene.hospitalizationNumber }</label>
+				<label class="inforLabel"><span>床号：</span>${intervene.bedNumber}</label>
+				<label class="inforLabel"><span>入院时间：</span><fmt:formatDate value="${intervene.createDate}" pattern="yyyy-MM-dd HH:mm"/></label>
+				<label class="inforLabel"><span>医保类型：</span>${fns:getDictLabel(intervene.medicalType, 'medical_type', '无')}</label>
+			</div>
+		</div>
+		<div id="menuDiv" class="control-group planDiv">
+			<input type="hidden"  id="jurisdiction" name="jurisdiction" value="${fns:getUser().jurisdiction}"/>
+			<c:if test="${fns:containStr(fns:getUser().jurisdiction,'1')}">
+				<input class="btn <c:if test="${fn:substringBefore(fns:getUser().jurisdiction,',') == '1' || fns:getUser().jurisdiction == '1'}">selected</c:if>" type="button" value="诊疗计划" onclick="changeDiv('assessmentDiv')">
+			</c:if>
+			<c:if test="${fns:containStr(fns:getUser().jurisdiction,'2')}">
+				<input class="btn <c:if test="${fn:substringBefore(fns:getUser().jurisdiction,',') == '2' || fns:getUser().jurisdiction == '2'}">selected</c:if>" type="button" value="护理计划" onclick="changeDiv('careDiv')">
+			</c:if>
+			<c:if test="${fns:containStr(fns:getUser().jurisdiction,'3')}">
+				<input class="btn <c:if test="${fn:substringBefore(fns:getUser().jurisdiction,',') == '3' || fns:getUser().jurisdiction == '3'}">selected</c:if>" type="button" value="照护计划" onclick="changeDiv('nurserDiv')">
+			</c:if>
+			<c:if test="${fns:containStr(fns:getUser().jurisdiction,'4')}">
+				<input class="btn <c:if test="${fn:substringBefore(fns:getUser().jurisdiction,',') == '4' || fns:getUser().jurisdiction == '4'}">selected</c:if>" type="button" value="营养计划" onclick="changeDiv('nutritionDiv')">
+			</c:if>
+			<c:if test="${fns:containStr(fns:getUser().jurisdiction,'5')}">
+				<input class="btn <c:if test="${fn:substringBefore(fns:getUser().jurisdiction,',') == '5' || fns:getUser().jurisdiction == '5'}">selected</c:if>" type="button" value="康复计划" onclick="changeDiv('recoverDiv')">
+			</c:if>
+			<c:if test="${fns:containStr(fns:getUser().jurisdiction,'6')}">
+				<input class="btn <c:if test="${fn:substringBefore(fns:getUser().jurisdiction,',') == '6' || fns:getUser().jurisdiction == '6'}">selected</c:if>" type="button" value="社工计划" onclick="changeDiv('socialDiv')">
+			</c:if>
+			<c:if test="${fns:containStr(fns:getUser().jurisdiction,'7')}">
+				<input class="btn <c:if test="${fn:substringBefore(fns:getUser().jurisdiction,',') == '7' || fns:getUser().jurisdiction == '7'}">selected</c:if>" type="button" value="应急计划" onclick="changeDiv('meetDiv')">
+			</c:if>
+		</div>
+		<!-- 诊疗计划 -->
+		<div id="assessmentDiv" class="control-group" style="display: <c:if test="${fn:substringBefore(fns:getUser().jurisdiction,',') != '1'}">none</c:if><c:if test="${fn:substringBefore(fns:getUser().jurisdiction,',') == '1' || fns:getUser().jurisdiction == '1'}">block</c:if>;">
+		<jsp:include page="assessmentInfo.jsp" />
+		</div>
+		<!-- 护理计划 -->
+		<div id="careDiv" class="control-group" style="display: <c:if test="${fn:substringBefore(fns:getUser().jurisdiction,',') != '2'}">none</c:if><c:if test="${fn:substringBefore(fns:getUser().jurisdiction,',') == '2' || fns:getUser().jurisdiction == '2'}">block</c:if>;">
+		<jsp:include page="careInfo.jsp" />
+		<%-- <iframe src="${ctx}/healtharchives/care/findById?id=${intervene.careId}&interveneId=${intervene.id}&state=${intervene.state}" width="100%" height="400px;" frameborder="0"></iframe> --%>
+		 </div>
+		<!-- 照护计划 -->
+		<div id="nurserDiv" class="control-group" style="display: <c:if test="${fn:substringBefore(fns:getUser().jurisdiction,',') != '3'}">none</c:if><c:if test="${fn:substringBefore(fns:getUser().jurisdiction,',') == '3' || fns:getUser().jurisdiction == '3'}">block</c:if>;">
+		<jsp:include page="nurserInfo.jsp" />
+		<%-- <iframe src="${ctx}/healtharchives/nurser/findById?id=${intervene.nurserId}&interveneId=${intervene.id}&state=${intervene.state}" width="100%" height="400px;" frameborder="0"></iframe> --%>
+		</div>
+		<!-- 营养计划 -->
+		<div id="nutritionDiv" class="control-group" style="display: <c:if test="${fn:substringBefore(fns:getUser().jurisdiction,',') != '4'}">none</c:if><c:if test="${fn:substringBefore(fns:getUser().jurisdiction,',') == '4' || fns:getUser().jurisdiction == '4'}">block</c:if>;">
+		<jsp:include page="nutritionInfo.jsp" />
+		</div>
+		<!-- 康复计划 -->
+		<div id="recoverDiv" class="control-group" style="display: <c:if test="${fn:substringBefore(fns:getUser().jurisdiction,',') != '5'}">none</c:if><c:if test="${fn:substringBefore(fns:getUser().jurisdiction,',') == '5' || fns:getUser().jurisdiction == '5'}">block</c:if>;">
+		<jsp:include page="recoverInfo.jsp" />
+		</div>
+		<!-- 社工计划 -->
+		<div id="socialDiv" class="control-group" style="display: <c:if test="${fn:substringBefore(fns:getUser().jurisdiction,',') != '6'}">none</c:if><c:if test="${fn:substringBefore(fns:getUser().jurisdiction,',') == '6' || fns:getUser().jurisdiction == '6'}">block</c:if>;">
+		<jsp:include page="socialInfo.jsp" />
+		</div>
+		<!-- 应急计划 -->
+		<div id="meetDiv" class="control-group" style="display: <c:if test="${fn:substringBefore(fns:getUser().jurisdiction,',') != '7'}">none</c:if><c:if test="${fn:substringBefore(fns:getUser().jurisdiction,',') == '7' || fns:getUser().jurisdiction == '7'}">block</c:if>;">
+		<jsp:include page="meetInfo.jsp" />
+		</div>
+	<%-- </form:form> --%>
+</body>
+</html>
